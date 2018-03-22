@@ -16,6 +16,7 @@ const getters = {
 const mutations = {
   setUser (state, payload) {
     state.user.id = payload.id
+    return payload
   },
   logIn (state) {
     router.push('/projects')
@@ -34,30 +35,33 @@ const actions = {
       .catch(error => { throw error })
   },
   signUserIn ({commit}, payload) {
-    Firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+    return Firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
       .then(user => {
         commit('setUser', {id: user.uid})
+      })
+      .then(() => {
         commit('logIn')
       })
   },
-  signUserUp ({commit, dispatch}, payload) {
-    Firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
+  registerNewUser ({commit, dispatch}, payload) {
+    return Firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
       .then(user => {
         user.updateProfile({
           displayName: payload.name
         })
-        commit('setUser', {id: user.uid})
-        dispatch('createNewUser', {name: payload.name, email: payload.email})
-        commit('activateDrawer')
-        commit('logIn')
-      }) // eslint-disable-next-line
-      .catch(error => console.log(error))
+        return user
+      })
+      .then(user => {
+        return dispatch('createNewUser', {name: payload.name, email: payload.email})
+          .then(user => user)
+          .catch(error => console.log(error))
+      })
+      .catch(error => { throw error })
   },
   autoSignIn ({commit}, payload) {
     let user = Firebase.auth().currentUser
     if (user) commit('setUser', {id: user.uid})
   },
-
   logOut ({commit}) {
     commit('logOut')
   }

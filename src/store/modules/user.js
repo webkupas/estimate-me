@@ -14,10 +14,18 @@ const mutations = {
 
 const actions = {
   createNewUser (context, user) {
-    db.collection('users')
+    return db.collection('users')
       .add({
         name: user.name,
         email: user.email
+      })
+      .then(() => {
+        console.log('Document successfully written!')
+        return user
+      })
+      .catch((error) => {
+        console.error('Error writing document: ', error)
+        throw new Error('Error writing document: ', error)
       })
   }
 }

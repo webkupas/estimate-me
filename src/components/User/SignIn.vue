@@ -6,7 +6,7 @@
         <h1 class="display-1 white--text">Sign In</h1>
       </v-card-title>
       <v-card-text>
-        <v-form v-model="valid" ref="form" lazy-validation>
+        <v-form v-model="valid" ref="signUpform">
           <v-text-field
             label="E-mail"
             v-model="email"
@@ -25,25 +25,25 @@
             :type="e1 ? 'password' : 'text'"
             required
           ></v-text-field>
-       
-      </v-form>
-      </v-card-text>
-      <v-card-actions>
-        <div class="auth-preloader" :class="{'is-visible': (preloaderShow && valid)}">
-          <v-progress-circular indeterminate :size="30" color="primary"></v-progress-circular>
-        </div>
-        <v-spacer></v-spacer>
-        <a @click.prevent="goToSignUp" class="sign-up-link">Register</a>
-        <v-btn @click="signIn" :disabled="!valid" class="primary mr-2 mb-2">Sign In</v-btn>
-      </v-card-actions>
+        
+          <v-card-actions>
+            <div class="auth-preloader" :class="{'is-visible': (preloaderShow && valid)}">
+              <v-progress-circular indeterminate :size="30" color="primary"></v-progress-circular>
+            </div>
+            <v-spacer></v-spacer>
+            <a @click.prevent="goToSignUp" class="sign-up-link">Register</a>
+            <v-btn @click="signIn" :disabled="!valid" class="primary">Sign In</v-btn>
+          </v-card-actions>
+        </v-form>
+        </v-card-text>
     </v-card>
     <v-alert
-        type="error"
-        :value="alert"
-        transition="scale-transition"
-      >
-        {{alertErrorMsg}}
-      </v-alert>
+      type="error"
+      :value="alert"
+      transition="scale-transition"
+    >
+      {{alertErrorMsg}}
+    </v-alert>
 
   </v-container>
 </template>
@@ -53,10 +53,10 @@
     data () {
       return {
         preloaderShow: false,
+        email: '',
         password: '',
         valid: false,
         e1: true,
-        email: '',
         emailRules: [
           v => !!v || 'E-mail is required',
           v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
@@ -71,13 +71,18 @@
     },
     methods: {
       signIn () {
-        if (this.$refs.form.validate() && this.valid) {
+        if (this.$refs.signUpform.validate() && this.valid) {
           this.preloaderShow = true
           this.$store.dispatch('auth', {email: this.email, password: this.password})
           .then(response => {
             this.preloaderShow = false
+            return response
+          })
+          .then((response) => {
             this.$store.dispatch('signUserIn', {email: this.email, password: this.password})
-          }, error => {
+            return response
+          })
+          .catch(error => {
             this.alertErrorMsg = error.message
             this.preloaderShow = false
             this.alert = true
