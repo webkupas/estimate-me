@@ -28,6 +28,18 @@ const mutations = {
 }
 
 const actions = {
+  auth ({commit}, payload) {
+    return Firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+      .then(user => user)
+      .catch(error => { throw error })
+  },
+  signUserIn ({commit}, payload) {
+    Firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+      .then(user => {
+        commit('setUser', {id: user.uid})
+        commit('logIn')
+      })
+  },
   signUserUp ({commit, dispatch}, payload) {
     Firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
       .then(user => {
@@ -38,20 +50,14 @@ const actions = {
         dispatch('createNewUser', {name: payload.name, email: payload.email})
         commit('activateDrawer')
         commit('logIn')
-      })
+      }) // eslint-disable-next-line
       .catch(error => console.log(error))
-  },
-  signUserIn ({commit}, payload) {
-    Firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
-      .then(user => {
-        commit('setUser', {id: user.uid})
-        commit('logIn')
-      })
   },
   autoSignIn ({commit}, payload) {
     let user = Firebase.auth().currentUser
     if (user) commit('setUser', {id: user.uid})
   },
+
   logOut ({commit}) {
     commit('logOut')
   }
