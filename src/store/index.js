@@ -14,22 +14,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    db: null
   },
   getters: {
-    db (state) {
-      return state.db
-    }
   },
   mutations: {
-    dbInit (state, db) {
-      state.db = db
-    }
   },
   actions: {
-    dbInit ({commit}, db) {
-      commit('dbInit', db)
-    }
   },
   modules: {
     projects,
