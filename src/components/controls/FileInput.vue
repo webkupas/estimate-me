@@ -72,7 +72,7 @@
         filename: '',
         forms: [],
         uploading: false,
-        mediaDeleting: false,
+        mediaDeleting: false
       }
     },
     computed: {

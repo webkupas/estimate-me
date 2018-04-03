@@ -31,8 +31,6 @@ export default {
     'app-main-nav': MainNav,
     'app-drawer': Drawer,
     'app-footer': Footer
-  },
-  created () {
   }
 }
 </script>
