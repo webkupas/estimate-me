@@ -1,7 +1,7 @@
 <template>
   <v-container style="max-width: 900px">
     <v-card class="mt-4 mb-4">
-      <v-card-title class="indigo">
+      <v-card-title class="primary">
         <h1 class="display-1 white--text">New Project</h1>
       </v-card-title>
       <v-card-text>
@@ -12,21 +12,21 @@
             v-model="title"
         ></v-text-field>
         <div class="grey--text text--darken-1 headline mb-2">Private Info</div>
-        <vue-editor 
+        <est-vue-editor 
             id="private-info" 
             :editorToolbar="customToolbar" 
             class="private-info-new mb-4" 
             v-model="privateInfo"
-            placeholder="Current notes will be visible only for you"></vue-editor>
+            placeholder="Current notes will be visible only for you"></est-vue-editor>
         
         <div class="grey--text text--darken-1 headline mb-2" >Public Info</div>
-        <vue-editor 
+        <est-vue-editor 
             id="public-info" 
             :editorToolbar="customToolbar" 
             class="mb-1" 
             v-model="publicInfo"
             placeholder="Current notes will be visible for everybody"
-            ></vue-editor>
+            ></est-vue-editor>
 
       </v-card-text>
       <v-card-text>
@@ -98,7 +98,7 @@
       }
     },
     components: {
-      'vue-editor': VueEditor
+      'est-vue-editor': VueEditor
     }
   }
 </script>

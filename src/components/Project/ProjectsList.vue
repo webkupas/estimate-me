@@ -5,7 +5,7 @@
 
        <v-flex sm12 v-for="i in 7" :key="'project-'+i">
           <v-card hover to="/projects/1">
-            <v-card-title class="indigo darken-1">
+            <v-card-title class="primary">
               <v-layout row justify-space-between align-center>
                 <v-flex sm11>
                   <div class="title" style="color: #fff;">Unlimited music now Unlimited music now Unlimited music now Unlimited music now</div>
@@ -32,7 +32,7 @@
             <v-divider></v-divider>
 
             <v-card-actions>
-              <div class="pl-2 grey--text">posted by: <span class="indigo--text text--darken-2">Pavel Kukla</span></div>
+              <div class="pl-2 grey--text">posted by: <span class="primary--text text--darken-2">Pavel Kukla</span></div>
 
               <v-spacer></v-spacer>
 

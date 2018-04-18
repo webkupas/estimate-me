@@ -81,7 +81,8 @@
     methods: {
       signUp () {
         if (this.$refs.signInform.validate() && this.valid) {
-          this.preloaderShow = true
+          this.preloaderShow = true // eslint-disable-next-line
+          
           this.$store.dispatch('registerNewUser', {name: this.name, email: this.email, password: this.password})
             .then(response => {
               this.preloaderShow = false

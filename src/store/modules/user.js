@@ -1,36 +1,50 @@
-import {db} from '../../firebase'
-
+import { db } from '../../firebase'
 const state = {
-
-}
-
-const getters = {
-
-}
-
-const mutations = {
-
-}
-
-const actions = {
-  createNewUser (context, user) {
-    return db.collection('users')
-      .add({
-        name: user.name,
-        email: user.email
-      })
-      .then(() => {
-        console.log('Document successfully written!')
-        return user
-      })
-      .catch((error) => {
-        console.error('Error writing document: ', error)
-        throw new Error('Error writing document: ', error)
-      })
+  user: {
+    id: null,
+    currentWorkspace: null,
+    relatedWorkspaces: []
   }
 }
 
-export default {
+const getters = {
+  user (state) {
+    return state.user
+  }
+}
+
+const mutations = {
+  setUser (state, payload) {
+    state.user.id = payload.id
+    return payload
+  },
+  resetUserID (state) {
+    state.user.id = null
+  },
+  setWorkspace (state, payload) {
+    state.user.currentWorkspace = payload
+  },
+  setRelatedWorkspaces (state, workspaces) {
+    state.user.relatedWorkspaces = workspaces
+  }
+}
+
+const actions = {
+  setWorkspace ({commit}, workspaceID) {
+    commit('setWorkspace', workspaceID)
+  },
+  getLastVisitedWorkspace ({commit}, userID) {
+    db.collection('users').doc(userID).get()
+      .then(doc => {
+        if (doc.exists && doc.data().lastWorkspace) commit('setWorkspace', doc.data().lastWorkspace)
+      })
+  },
+  setRelatedWorkspaces ({commit}, workspaces) {
+    if (workspaces.length) commit('setRelatedWorkspaces', workspaces)
+  }
+}
+
+export default{
   state,
   getters,
   mutations,

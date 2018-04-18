@@ -8,7 +8,8 @@ import 'babel-polyfill'
 
 import projects from './modules/projects'
 import auth from './modules/auth'
-import users from './modules/user'
+import user from './modules/user'
+import usersList from './modules/usersList'
 
 Vue.use(Vuex)
 
@@ -24,6 +25,7 @@ export default new Vuex.Store({
   modules: {
     projects,
     auth,
-    users
+    user,
+    usersList
   }
 })

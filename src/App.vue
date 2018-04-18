@@ -1,13 +1,13 @@
 <template>
   <v-app>
-    <app-main-nav :drawer="drawer" :showDrawer="showDrawer" @drawerChanged="drawer = !drawer"></app-main-nav>    
-    <app-drawer v-if="showDrawer" :drawer="drawer" ></app-drawer>
+    <est-main-nav :drawer="drawer" :showDrawer="showDrawer" @drawerChanged="drawer = !drawer"></est-main-nav>    
+    <est-drawer v-if="showDrawer" :drawer="drawer" ></est-drawer>
     <v-content>
         <transition name="slide-fade" mode="out-in">
           <router-view></router-view>
         </transition>      
     </v-content>
-    <app-footer></app-footer>
+    <est-footer></est-footer>
     <div class="preloader">
       <v-progress-circular indeterminate :size="50" color="primary"></v-progress-circular>
     </div>
@@ -22,19 +22,27 @@ import Footer from './components/Footer'
 export default {
   data () {
     return {
-      // eslint-disable-next-line
       drawer: true,
       showDrawer: this.$store.getters.user.id ? 1 : 0
     }
   },
+  computed: {
+    isAuthorized () {
+      return this.$store.getters.user.id ? 1 : 0
+    }
+  },
+  watch: {
+    isAuthorized (value) {
+      this.showDrawer = value
+    }
+  },
   components: {
-    'app-main-nav': MainNav,
-    'app-drawer': Drawer,
-    'app-footer': Footer
+    'est-main-nav': MainNav,
+    'est-drawer': Drawer,
+    'est-footer': Footer
   }
 }
 </script>
-
 
 <style>
   .preloader{

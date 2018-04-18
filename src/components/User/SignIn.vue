@@ -72,24 +72,25 @@
     methods: {
       signIn () {
         if (this.$refs.signUpform.validate() && this.valid) {
-          this.preloaderShow = true
+          this.preloaderShow = true // eslint-disable-next-line
+
           this.$store.dispatch('auth', {email: this.email, password: this.password})
-          .then(response => {
-            this.preloaderShow = false
-            return response
-          })
-          .then((response) => {
-            this.$store.dispatch('signUserIn', {email: this.email, password: this.password})
-            return response
-          })
-          .catch(error => {
-            this.alertErrorMsg = error.message
-            this.preloaderShow = false
-            this.alert = true
-            setTimeout(() => {
-              this.alert = false
-            }, 5000)
-          })
+            .then(response => {
+              this.preloaderShow = false
+              return response
+            })
+            .then((response) => {
+              this.$store.dispatch('signUserIn', {email: this.email, password: this.password})
+              return response
+            })
+            .catch(error => {
+              this.alertErrorMsg = error.message
+              this.preloaderShow = false
+              this.alert = true
+              setTimeout(() => {
+                this.alert = false
+              }, 5000)
+            })
         }
       },
       goToSignUp () {

@@ -10,6 +10,22 @@ const routerOptions = [
     }
   },
   {
+    path: '/workspaces/new',
+    name: 'CreateWorkspace',
+    component: 'Workspace/CreateWorkspace',
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/workspaces/:id',
+    name: 'Workspace',
+    component: 'Workspace/EditWorkspace',
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/projects',
     name: 'Projects',
     component: 'Project/ProjectsList',

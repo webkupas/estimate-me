@@ -1,7 +1,7 @@
 <template>
   <v-container style="max-width: 900px">
     <v-card class="mt-4">
-      <v-card-title class="indigo">
+      <v-card-title class="primary">
 
         <v-layout row justify-space-between>
           <v-flex sm11>
@@ -61,9 +61,6 @@ export default{
         'Vladimir Kozir'
       ]
     }
-  },
-  components: {
-
   },
   methods: {
     qwe () {

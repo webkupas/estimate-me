@@ -19,6 +19,7 @@ const unsubscribe = firebaseApp.auth()
       created () {
         if (firebaseUser) {
           this.$store.dispatch('autoSignIn', {id: firebaseUser.uid})
+          this.$store.dispatch('getLastVisitedWorkspace', firebaseUser.uid)
         }
       }
     })
