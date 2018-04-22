@@ -21,11 +21,20 @@ const mutations = {
   resetUserID (state) {
     state.user.id = null
   },
-  setWorkspace (state, payload) {
-    state.user.currentWorkspace = payload
+  setWorkspace (state, workspaceID) {
+    state.user.currentWorkspace = workspaceID
   },
   setRelatedWorkspaces (state, workspaces) {
     state.user.relatedWorkspaces = workspaces
+  },
+  resetRelatedWorkspaces (state) {
+    state.user.relatedWorkspaces = []
+  },
+  resetCurrentWorkspace (state, workspaceID) {
+    state.user.relatedWorkspaces = state.user.relatedWorkspaces.filter(obj => {
+      if (obj.id !== workspaceID) return obj
+    })
+    if (workspaceID === state.user.currentWorkspace) state.user.currentWorkspace = state.user.relatedWorkspaces[0].id
   }
 }
 
@@ -41,6 +50,12 @@ const actions = {
   },
   setRelatedWorkspaces ({commit}, workspaces) {
     if (workspaces.length) commit('setRelatedWorkspaces', workspaces)
+  },
+  resetRelatedWorkspaces ({commit}) {
+    commit('resetRelatedWorkspaces')
+  },
+  resetCurrentWorkspace ({commit}, workspaceID) {
+    commit('resetCurrentWorkspace', workspaceID)
   }
 }
 

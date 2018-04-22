@@ -26,7 +26,7 @@
 
           <v-card-text>
             <v-select
-              v-model="select"
+              v-model="followers"
               label="Assigned users"
               chips
               multiple
@@ -50,10 +50,16 @@
             </v-select>
           </v-card-text>
           <v-card-actions>
-            <div class="auth-preloader" :class="{'is-visible': (pending && valid && !dialog )}">
-              <v-progress-circular indeterminate :size="30" color="primary"></v-progress-circular>
-            </div>
+            <v-tooltip top>
+              <v-btn icon slot="activator" to="/">
+                <v-icon color="grey">arrow_back</v-icon>
+              </v-btn>
+              <span>Back</span>
+            </v-tooltip>
             <v-spacer></v-spacer>
+            <div class="auth-preloader" :class="{'is-visible': (pending && valid && !dialog )}">
+              <v-progress-circular indeterminate :size="30" color="primary" class="mr-2"></v-progress-circular>
+            </div>
             <v-btn depressed large color="primary mb-2 " style="margin-right: 12px;" @click="publish" :disabled="!valid || pending">Publish</v-btn>
           </v-card-actions>
         </v-form>
@@ -88,7 +94,7 @@ export default {
       valid: false,
       dialog: false,
       pending: false,
-      select: [],
+      followers: [],
       users: this.$store.getters.usersList,
       customToolbar: [
         [{ header: [false, 1, 2, 3, 4, 5, 6] }],
@@ -111,10 +117,36 @@ export default {
           title: this.title,
           description: this.description,
           superadmin: this.$store.getters.user.id,
-          followers: this.select,
+          followers: this.followers,
           projects: []
         })
-        .then(() => {
+        .then(docRef => {
+          let sharedUsers = this.followers
+          sharedUsers.push(this.$store.getters.user.id)
+          sharedUsers.forEach(userID => {
+            let userDoc = db.collection('users').doc(userID)
+
+            userDoc.get()
+              .then(doc => {
+                if (doc.exists) {
+                  let workspaces = [docRef.id]
+                  if (doc.data().workspaces) workspaces = workspaces.concat(doc.data().workspaces)
+                  return workspaces
+                }
+              })
+              .then(workspaces => {
+                userDoc.update({
+                  workspaces: workspaces
+                })
+                .catch(error => console.error('User workspaces list updating error', error))
+              })
+              .catch(error => console.error('Get user workspaces list error', error))
+          })
+          return docRef.id
+        })
+        .then(worspaceID => {
+          this.$store.dispatch('setWorkspace', worspaceID)
+          this.$store.dispatch('resetRelatedWorkspaces')
           this.dialog = true
         })
         .catch(error => console.warn('Error with adding new workspace in DB: ', error))
