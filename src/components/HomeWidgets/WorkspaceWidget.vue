@@ -70,8 +70,6 @@ export default {
           return workspaces
         })
         .then(workspaces => {
-          let selectWorkspaceList = []
-
           let fetchWorkspace = (workspaceID) => {
             return db.collection('workspaces').doc(workspaceID).get()
               .then(workspaceRef => {
@@ -84,10 +82,8 @@ export default {
                 }
               })
           }
-          workspaces.forEach(workspace => {
-            selectWorkspaceList.push(fetchWorkspace(workspace))
-          })
-          return Promise.all(selectWorkspaceList)
+
+          return Promise.all(workspaces.map(workspace => fetchWorkspace(workspace)))
         })
         .then(workspaces => {
           this.$store.dispatch('setRelatedWorkspaces', workspaces)

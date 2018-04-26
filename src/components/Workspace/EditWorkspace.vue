@@ -102,6 +102,8 @@
 import { VueEditor } from 'vue2-editor'
 import { db } from '../../firebase'
 import isEqual from 'lodash/isEqual'
+import difference from 'lodash/difference'
+import { updateUserRelatedWorkspaces } from '../../functions/users'
 export default {
   data () {
     return {
@@ -135,11 +137,15 @@ export default {
     }
   },
   methods: {
+    /**
+     * Update current workspace fields
+     * and update related workspaces data for each added/removed user
+     */
     update () {
       if (this.$refs.form.validate()) {
         this.pending = true // eslint-disable-next-line
 
-        let updates = {}
+        let updates = {} // object of updated fields
         if (this.title !== this.oldTitle) updates.title = this.title
         if (this.description !== this.oldDescription) updates.description = this.description
         if (!isEqual(this.followers, this.oldFollowers)) updates.followers = this.followers // eslint-disable-next-line
@@ -148,32 +154,35 @@ export default {
           db.collection('workspaces')
             .doc(this.$route.params.id)
             .update(updates)
-          .then(() => {
-            this.oldTitle = this.title
-            this.oldDescription = this.description
-            this.oldFollowers = this.followers
-            this.dialog = true
-          })
+            .then(() => {
+              if (updates.followers && Array.isArray(updates.followers)) {
+                let usersToRemoveFromWorkspace = difference(this.oldFollowers, updates.followers)
+                let usersToAddToWorkspace = difference(updates.followers, this.oldFollowers)
+
+                // remove current workspace for all unassigned followers
+                if (usersToRemoveFromWorkspace.length) {
+                  usersToRemoveFromWorkspace.forEach(user => {
+                    updateUserRelatedWorkspaces(user, this.$route.params.id, false)
+                  })
+                }
+
+                // add current workspace to all new assigned followers
+                if (usersToAddToWorkspace.length) {
+                  usersToAddToWorkspace.forEach(user => {
+                    updateUserRelatedWorkspaces(user, this.$route.params.id, true)
+                  })
+                }
+              }
+            })
+            .then(() => {
+              this.oldTitle = this.title
+              this.oldDescription = this.description
+              this.oldFollowers = this.followers
+              this.dialog = true
+            })
           .catch(error => console.warn('Error with adding new workspace in DB: ', error))
         }
       }
-    },
-    removeWorkspace () {
-      db.collection('workspaces').doc(this.$route.params.id).delete()
-        .then(() => {
-          this.$store.dispatch('resetCurrentWorkspace', this.$route.params.id)
-          db.collection('users')
-            .doc(this.$store.getters.user.id)
-            .update({
-              'lastWorkspace': ''
-            })
-            .then(() => { console.log('Last visited workspace updated for current user') })
-            .catch(error => console.error('Error updating user\'s lastWorkspace', error))
-        })
-        .then(() => {
-          this.$router.push('/')
-        })
-        .catch(error => console.error('Error with workspace removing', error))
     }
   },
   components: {
@@ -183,6 +192,7 @@ export default {
     dialog (val) {
       if (!val) {
         this.pending = false
+        this.buttonDisalded = true
       }
     },
     title (val) {
