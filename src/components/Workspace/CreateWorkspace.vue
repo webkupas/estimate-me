@@ -74,15 +74,14 @@
           </v-card>
         </v-dialog>
       </v-card>
-    
-    
-       
   </v-container>
 </template>
 
 <script>
 import { VueEditor } from 'vue2-editor'
 import { db } from '../../firebase'
+import { updateUserRelatedWorkspaces, updateLastVisitedWorkspace } from '../../functions/users'
+import concat from 'lodash/concat'
 export default {
   data () {
     return {
@@ -121,35 +120,22 @@ export default {
           projects: []
         })
         .then(docRef => {
-          let sharedUsers = this.followers
-          sharedUsers.push(this.$store.getters.user.id)
-          sharedUsers.forEach(userID => {
-            let userDoc = db.collection('users').doc(userID)
-
-            userDoc.get()
-              .then(doc => {
-                if (doc.exists) {
-                  let workspaces = [docRef.id]
-                  if (doc.data().workspaces) workspaces = workspaces.concat(doc.data().workspaces)
-                  return workspaces
-                }
-              })
-              .then(workspaces => {
-                userDoc.update({
-                  workspaces: workspaces
-                })
-                .catch(error => console.error('User workspaces list updating error', error))
-              })
-              .catch(error => console.error('Get user workspaces list error', error))
+          let allSharedUsers = concat(this.followers, this.$store.getters.user.id)
+          allSharedUsers.forEach(userID => {
+            updateUserRelatedWorkspaces(userID, docRef.id, true)
           })
           return docRef.id
+        })
+        .then(worspaceID => {
+          updateLastVisitedWorkspace(this.$store.getters.user.id, worspaceID)
+          return worspaceID
         })
         .then(worspaceID => {
           this.$store.dispatch('setWorkspace', worspaceID)
           this.$store.dispatch('resetRelatedWorkspaces')
           this.dialog = true
         })
-        .catch(error => console.warn('Error with adding new workspace in DB: ', error))
+        .catch(error => console.error('Error with adding new workspace in DB: ', error))
       }
     }
   },

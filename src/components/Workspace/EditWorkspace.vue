@@ -72,7 +72,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="primary" flat @click.native="confirmDeleteDialog = false">No</v-btn>
-                  <v-btn color="primary" flat @click.native="removeWorkspace">Yes I'm sure</v-btn>
+                  <v-btn color="primary" flat @click.native="remove">Yes I'm sure</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -104,6 +104,7 @@ import { db } from '../../firebase'
 import isEqual from 'lodash/isEqual'
 import difference from 'lodash/difference'
 import { updateUserRelatedWorkspaces } from '../../functions/users'
+import { removeWorkspace } from '../../functions/workspaces'
 export default {
   data () {
     return {
@@ -183,6 +184,18 @@ export default {
           .catch(error => console.warn('Error with adding new workspace in DB: ', error))
         }
       }
+    },
+    /**
+     * Remove Workspace
+     */
+    remove () {
+      removeWorkspace(this.$route.params.id)
+        .then(() => {
+          this.$store.dispatch('resetRelatedWorkspaces')
+            .then(() => {
+              this.$router.push('/')
+            })
+        })
     }
   },
   components: {

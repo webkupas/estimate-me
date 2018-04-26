@@ -96,7 +96,7 @@ export default {
             return elem.id === this.currentWorkspace
           }) // eslint-disable-next-line
                     
-          if (workspaceObj.isSuperAdmin) this.userAbleToEditWorkspace = true
+          if (workspaceObj && workspaceObj.isSuperAdmin) this.userAbleToEditWorkspace = true
           else this.userAbleToEditWorkspace = false
         })
     }

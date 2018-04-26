@@ -11,22 +11,21 @@ import uniq from 'lodash/uniq'
  */
 export const updateUserRelatedWorkspaces = (userID, workspace, toAdd = true) => {
   const userDocRef = db.collection('users').doc(userID)
-  return userDocRef.get()
+  userDocRef.get()
     .then(doc => {
       if (doc.exists) {
         let relatedWorkspaces = doc.data().workspaces
         let lastWorspace = doc.data().lastWorkspace
         let newRelatedWorkspacesList = []
-
         if (toAdd) { // add new workspace
           if (relatedWorkspaces && Array.isArray(relatedWorkspaces) && relatedWorkspaces.length) {
-            newRelatedWorkspacesList = uniq(relatedWorkspaces, [workspace])
+            newRelatedWorkspacesList = uniq(relatedWorkspaces.concat([workspace]))
           } else {
             newRelatedWorkspacesList.push(workspace)
           }
         } else if (!toAdd) { // remove workspace
           if (relatedWorkspaces && Array.isArray(relatedWorkspaces) && relatedWorkspaces.length) {
-            newRelatedWorkspacesList = newRelatedWorkspacesList.filter(elem => elem !== workspace)
+            newRelatedWorkspacesList = relatedWorkspaces.filter(elem => elem !== workspace)
           }
           if (lastWorspace === workspace) updateLastVisitedWorkspace(userID, '')
         }
@@ -37,9 +36,9 @@ export const updateUserRelatedWorkspaces = (userID, workspace, toAdd = true) => 
     .then(newRelatedWorkspacesList => {
       return userDocRef.update({workspaces: newRelatedWorkspacesList})
                 .then(() => console.log('User\'s related workspaces successfully updated'))
-                .catch(error => console.log('Error with updating user\'s related workspaces list: ', error))
+                .catch(error => console.error('Error with updating user\'s related workspaces list: ', error))
     })
-    .catch(error => console.log('Error with updating user\'s related workspaces list ', error))
+    .catch(error => console.error('Error with updating user\'s related workspaces list ', error))
 }
 
 /**
