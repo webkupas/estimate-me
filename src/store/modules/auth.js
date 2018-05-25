@@ -23,7 +23,7 @@ const actions = {
   signUserIn ({commit}, payload) {
     return firebaseApp.auth().signInWithEmailAndPassword(payload.email, payload.password)
       .then(user => {
-        commit('setUser', {id: user.uid}, {root: true})
+        commit('user/setUser', user.uid, {root: true})
       })
       .then(() => {
         commit('logIn')
@@ -60,17 +60,17 @@ const actions = {
         throw new Error('Error writing document: ', error)
       })
   },
-  autoSignIn ({commit}, payload) {
-    let user = firebaseApp.auth().currentUser
-    if (user) commit('setUser', {id: user.uid})
+  autoSignIn ({commit}, userID) {
+    commit('user/setUser', userID, {root: true})
   },
   logOut ({commit}) {
-    commit('resetUserID', null, {root: true})
+    commit('user/resetUserID', null, {root: true})
     commit('logOut')
   }
 }
 
 export default{
+  namespaced: true,
   state,
   getters,
   mutations,

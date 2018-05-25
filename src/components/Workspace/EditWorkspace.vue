@@ -105,6 +105,7 @@ import isEqual from 'lodash/isEqual'
 import difference from 'lodash/difference'
 import { updateUserRelatedWorkspaces } from '../../functions/users'
 import { removeWorkspace } from '../../functions/workspaces'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -124,7 +125,6 @@ export default {
       buttonDisalded: true,
       label: 'Loading data...',
       followers: [],
-      users: this.$store.getters.usersList,
       customToolbar: [
         [{ header: [false, 1, 2, 3, 4, 5, 6] }],
         ['bold', 'italic', 'underline'],
@@ -136,6 +136,11 @@ export default {
         ]
       ]
     }
+  },
+  computed: {
+    ...mapGetters({
+      users: 'usersList/usersList'
+    })
   },
   methods: {
     /**
@@ -176,6 +181,7 @@ export default {
               }
             })
             .then(() => {
+              this.$store.dispatch('workspace/setWorkspaceFollowers', this.$route.params.id)
               this.oldTitle = this.title
               this.oldDescription = this.description
               this.oldFollowers = this.followers
@@ -191,7 +197,7 @@ export default {
     remove () {
       removeWorkspace(this.$route.params.id)
         .then(() => {
-          this.$store.dispatch('resetRelatedWorkspaces')
+          this.$store.dispatch('user/resetRelatedWorkspaces')
             .then(() => {
               this.$router.push('/')
             })
@@ -219,10 +225,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('getUsersList')
-        .then(() => {
-          this.users = this.$store.getters.usersList
-        })
+    this.$store.dispatch('usersList/getUsersList')
         .then(() => {
           if (Object.keys(this.$route.params).length && this.$route.params.id) {
             db.collection('workspaces').doc(this.$route.params.id).get()

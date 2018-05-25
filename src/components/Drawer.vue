@@ -38,7 +38,7 @@ export default {
   },
   computed: {
     menuItems () {
-      return this.$store.getters.user.id ? this.authDrawerMenuItems : this.nonAuthDrawerMenuItems
+      return this.$store.getters['user/user'].id ? this.authDrawerMenuItems : this.nonAuthDrawerMenuItems
     }
   }
 }

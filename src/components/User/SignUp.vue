@@ -83,13 +83,13 @@
         if (this.$refs.signInform.validate() && this.valid) {
           this.preloaderShow = true // eslint-disable-next-line
           
-          this.$store.dispatch('registerNewUser', {name: this.name, email: this.email, password: this.password})
+          this.$store.dispatch('auth/registerNewUser', {name: this.name, email: this.email, password: this.password})
             .then(response => {
               this.preloaderShow = false
               return response
             })
             .then((response) => {
-              this.$store.dispatch('signUserIn', {email: this.email, password: this.password})
+              this.$store.dispatch('auth/signUserIn', {email: this.email, password: this.password})
               return response
             })
             .catch(error => {

@@ -82,6 +82,7 @@ import { VueEditor } from 'vue2-editor'
 import { db } from '../../firebase'
 import { updateUserRelatedWorkspaces, updateLastVisitedWorkspace } from '../../functions/users'
 import concat from 'lodash/concat'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
@@ -94,7 +95,6 @@ export default {
       dialog: false,
       pending: false,
       followers: [],
-      users: this.$store.getters.usersList,
       customToolbar: [
         [{ header: [false, 1, 2, 3, 4, 5, 6] }],
         ['bold', 'italic', 'underline'],
@@ -107,6 +107,12 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapGetters({
+      users: 'usersList/usersList',
+      user: 'user/user'
+    })
+  },
   methods: {
     publish () {
       if (this.$refs.form.validate()) {
@@ -115,24 +121,24 @@ export default {
         db.collection('workspaces').add({
           title: this.title,
           description: this.description,
-          superadmin: this.$store.getters.user.id,
+          superadmin: this.user.id,
           followers: this.followers,
           projects: []
         })
         .then(docRef => {
-          let allSharedUsers = concat(this.followers, this.$store.getters.user.id)
+          let allSharedUsers = concat(this.followers, this.user.id)
           allSharedUsers.forEach(userID => {
             updateUserRelatedWorkspaces(userID, docRef.id, true)
           })
           return docRef.id
         })
         .then(worspaceID => {
-          updateLastVisitedWorkspace(this.$store.getters.user.id, worspaceID)
+          updateLastVisitedWorkspace(this.user.id, worspaceID)
           return worspaceID
         })
         .then(worspaceID => {
-          this.$store.dispatch('setWorkspace', worspaceID)
-          this.$store.dispatch('resetRelatedWorkspaces')
+          this.$store.dispatch('workspace/setWorkspace', worspaceID)
+          this.$store.dispatch('user/resetRelatedWorkspaces')
           this.dialog = true
         })
         .catch(error => console.error('Error with adding new workspace in DB: ', error))
@@ -151,10 +157,7 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('getUsersList')
-        .then(() => {
-          this.users = this.$store.getters.usersList
-        })
+    this.$store.dispatch('usersList/getUsersList')
   }
 }
 </script>

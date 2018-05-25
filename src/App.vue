@@ -23,12 +23,12 @@ export default {
   data () {
     return {
       drawer: true,
-      showDrawer: this.$store.getters.user.id ? 1 : 0
+      showDrawer: this.$store.getters['user/user'].id ? 1 : 0
     }
   },
   computed: {
     isAuthorized () {
-      return this.$store.getters.user.id ? 1 : 0
+      return this.$store.getters['user/user'].id ? 1 : 0
     }
   },
   watch: {

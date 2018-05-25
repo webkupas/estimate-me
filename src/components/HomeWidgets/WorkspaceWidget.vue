@@ -3,12 +3,12 @@
     <v-card-title>Workspace</v-card-title>
     <v-card-text>
     <v-select
-        :items="workspaceList"
+        :items="user.relatedWorkspaces"
         item-text="name"
         item-value="id"
         overflow
         :loading="loading"
-        :value="currentWorkspace"
+        :value="workspace.id"
         :label="label"
         target="#dropdown-example"
         @change="onChangeWorkspace"
@@ -16,7 +16,7 @@
     </v-card-text>
     <v-card-actions>
     <v-spacer></v-spacer>
-    <v-btn v-if="userAbleToEditWorkspace" depressed large color="primary mb-2 " style="margin-right: 12px;" :to="`/workspaces/${currentWorkspace}`">Edit</v-btn>
+    <v-btn v-if="userAbleToEditWorkspace" depressed large color="primary mb-2 " style="margin-right: 12px;" :to="`/workspaces/${workspace.id}`">Edit</v-btn>
     <v-btn depressed large color="primary mb-2 " style="margin-right: 12px;" to="/workspaces/new">Create New</v-btn>
     </v-card-actions>
   </v-card>
@@ -24,30 +24,35 @@
 
 <script>
 import { db } from '../../firebase'
+import { mapGetters } from 'vuex'
 export default {
   data () {
     return {
-      workspaceList: this.$store.getters.user.relatedWorkspaces,
-      currentWorkspace: this.$store.getters.user.currentWorkspace,
       userAbleToEditWorkspace: false,
-      loading: (this.$store.getters.user.currentWorkspace !== '' && !this.$store.getters.user.relatedWorkspaces.length),
-      label: 'Loading data'
+      label: 'Loading data',
+      loading: true
     }
+  },
+  computed: {
+    ...mapGetters({
+      user: 'user/user',
+      workspace: 'workspace/workspace'
+    })
   },
   methods: {
     onChangeWorkspace (workspaceID) {
-      this.currentWorkspace = workspaceID
-      let workspaceObj = this.workspaceList.find(elem => {
+      let workspaceObj = this.user.relatedWorkspaces.find(elem => {
         return elem.id === workspaceID
       })
 
       if (workspaceObj.isSuperAdmin) this.userAbleToEditWorkspace = true
       else this.userAbleToEditWorkspace = false
 
-      this.$store.dispatch('setWorkspace', workspaceID) // eslint-disable-next-line
+      this.$store.dispatch('workspace/setWorkspace', workspaceID)
+      this.$store.dispatch('workspace/setWorkspaceFollowers', workspaceID) // eslint-disable-next-line
 
       db.collection('users')
-        .doc(this.$store.getters.user.id)
+        .doc(this.user.id)
         .update({
           'lastWorkspace': workspaceID
         })
@@ -56,10 +61,13 @@ export default {
     }
   },
   created () {
-    if (!this.$store.getters.user.id) this.$router.push('signin') // eslint-disable-next-line
-        
-    if (!this.$store.getters.user.relatedWorkspaces.length) {
-      db.collection('users').doc(this.$store.getters.user.id).get()
+    this.userAbleToEditWorkspace = this.workspace.isSuperAdmin
+    this.loading = (this.workspace.id !== '' && !this.user.relatedWorkspaces.length) // eslint-disable-next-line
+    
+    if (!this.user.id) this.$router.push('signin') // eslint-disable-next-line
+    
+    if (!this.user.relatedWorkspaces.length) {
+      db.collection('users').doc(this.user.id).get()
         .then(docRef => {
           let workspaces = []
           if (docRef.exists) {
@@ -77,7 +85,7 @@ export default {
                   return ({
                     id: workspaceRef.id,
                     name: workspaceRef.data().title,
-                    isSuperAdmin: this.$store.getters.user.id === workspaceRef.data().superadmin
+                    isSuperAdmin: this.user.id === workspaceRef.data().superadmin
                   })
                 }
               })
@@ -86,14 +94,12 @@ export default {
           return Promise.all(workspaces.map(workspace => fetchWorkspace(workspace)))
         })
         .then(workspaces => {
-          this.$store.dispatch('setRelatedWorkspaces', workspaces)
-          this.workspaceList = workspaces
+          this.$store.dispatch('user/setRelatedWorkspaces', workspaces)
           this.loading = false
-          this.label = 'Select'
-          this.currentWorkspace = this.$store.getters.user.currentWorkspace // eslint-disable-next-line
+          this.label = 'Select' // eslint-disable-next-line
 
-          let workspaceObj = this.workspaceList.find(elem => {
-            return elem.id === this.currentWorkspace
+          let workspaceObj = this.user.relatedWorkspaces.find(elem => {
+            return elem.id === this.workspace.id
           }) // eslint-disable-next-line
                     
           if (workspaceObj && workspaceObj.isSuperAdmin) this.userAbleToEditWorkspace = true

@@ -49,7 +49,7 @@ export default {
   },
   computed: {
     user () {
-      return this.$store.getters.user
+      return this.$store.getters['user/user']
     },
     topMenuItems () {
       return this.user.id ? this.topMenuItemsAuthorized : this.topMenuItemsUnAuthorized
@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     logOut () {
-      this.$store.dispatch('logOut')
+      this.$store.dispatch('auth/logOut')
     }
   }
 }

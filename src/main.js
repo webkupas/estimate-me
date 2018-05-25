@@ -19,8 +19,16 @@ const unsubscribe = firebaseApp.auth()
       render: h => h(App),
       created () {
         if (firebaseUser) {
-          this.$store.dispatch('autoSignIn', {id: firebaseUser.uid})
-          this.$store.dispatch('getLastVisitedWorkspace', firebaseUser.uid)
+          this.$store.dispatch('auth/autoSignIn', firebaseUser.uid)
+          this.$store.dispatch('user/getLastVisitedWorkspace', firebaseUser.uid)
+            .then(workspaceID => {
+              if (workspaceID) {
+                this.$store.dispatch('workspace/superAdminSetting', firebaseUser.uid)
+              }
+            })
+            .then(() => {
+              this.$store.commit('setAppAsLoaded')
+            })
         }
       }
     })
